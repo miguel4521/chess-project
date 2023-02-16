@@ -1,0 +1,9 @@
+#chessboard {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 80vh;
+}
+
+.column {
+  display: flex;
+}

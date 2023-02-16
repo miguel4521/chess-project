@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\backend",
+    "\\backend\\bin",
+    "\\backend\\bin\\Debug",
+    "\\backend\\bin\\Debug\\net7.0",
+    "\\backend\\ChessLogic",
+    "\\backend\\Controllers",
+    "\\backend\\obj",
+    "\\backend\\Properties"
+  ],
+  "PreviewInSolutionExplorer": false
+}
