@@ -64,8 +64,6 @@ function Chessboard({makeMove, legalMoves}) {
         // Notify the parent component (NewGame) about the move.
         makeMove(move);
         
-        console.log(move);
-
         // Remove the captured piece, if any.
         const removeCapturedPiece = pieces.filter((p) => {
             // If this is an en passant move, remove the captured pawn
@@ -76,8 +74,21 @@ function Chessboard({makeMove, legalMoves}) {
 
         // Update the positions of the pieces.
         const updatedPieces = removeCapturedPiece.map((p) => {
-            if (p === piece) {
+            if (p === piece)
                 return {...p, position: newPosition};
+            // Update the rook's position if the move is a castling move
+            if (move.isCastling) {
+                // Check if the current piece is a rook and has the same color as the king
+                if (p.type === 'r' && p.color === piece.color) {
+                    // If the rook's current position matches the castlingRookFrom square, update its position to the castlingRookTo square
+                    if (p.position.y * 8 + p.position.x === move.castlingRookFrom) {
+                        const updatedRookPosition = {
+                            x: move.castlingRookTo % 8,
+                            y: Math.floor(move.castlingRookTo / 8),
+                        };
+                        return {...p, position: updatedRookPosition};
+                    }
+                }
             }
             return p;
         });
