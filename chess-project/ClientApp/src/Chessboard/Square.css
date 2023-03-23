@@ -1,0 +1,20 @@
+.square {
+  width: 10vh;
+  height: 10vh;
+}
+
+.light-square {
+  background-color: #f0d9b5;
+}
+
+.dark-square {
+  background-color: #b58863;
+}
+
+.light-square-highlight {
+  background-color: #f8ec5c;
+}
+
+.dark-square-highlight {
+  background-color: #e0c434;
+}
