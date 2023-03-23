@@ -11,7 +11,10 @@ public class Position
 
     // An array of bitboards, one for each piece type and color
     public readonly Piece[] Pieces;
-    private bool WhiteToMove = true;
+    public bool WhiteToMove = true;
+
+    // left white rook, right white, left black, right black
+    public bool[] castlingRights = { true, true, true, true };
 
     public int? EnPassantTarget { get; set; }
 
@@ -55,6 +58,8 @@ public class Position
         // Move the piece
         Pieces[move.PieceIndex][move.To] = true;
         Pieces[move.PieceIndex][move.From] = false;
+        
+        updateCastlingRights(move);
 
         if (move.IsEnPassant)
         {
@@ -102,6 +107,55 @@ public class Position
 
         int offset = WhiteToMove ? 8 : -8;
         return EnPassantTarget.Value + offset;
+    }
+
+    private void updateCastlingRights(Move move)
+    {
+        if (move.IsCastling)
+        {
+            // Move the rook involved in castling
+            int rookFrom = move.CastlingRookFrom.Value;
+            int rookTo = move.CastlingRookTo.Value;
+            Pieces[6][rookFrom] = false;
+            Pieces[6][rookTo] = true;
+        }
+        else
+        {
+            switch (move.PieceIndex)
+            {
+                // Update castling rights
+                // White king
+                case 10:
+                    castlingRights[0] = false;
+                    castlingRights[1] = false;
+                    break;
+                // Black king
+                case 11:
+                    castlingRights[2] = false;
+                    castlingRights[3] = false;
+                    break;
+                // White rook
+                case 6 when move.From == 56:
+                    castlingRights[0] = false;
+                    break;
+                case 6:
+                {
+                    if (move.From == 63)
+                        castlingRights[1] = false;
+                    break;
+                }
+                // Black rook
+                case 7 when move.From == 0:
+                    castlingRights[2] = false;
+                    break;
+                case 7:
+                {
+                    if (move.From == 7)
+                        castlingRights[3] = false;
+                    break;
+                }
+            }
+        }
     }
 
     public int GetPieceIndexAt(int square)

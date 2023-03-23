@@ -1,4 +1,6 @@
-﻿namespace chess_project.Bitboards.Pieces;
+﻿using System.Collections;
+
+namespace chess_project.Bitboards.Pieces;
 
 public class King : Piece
 {
@@ -37,25 +39,39 @@ public class King : Piece
 
         Bitboard friendlyPieces = IsWhite ? position.GetWhitePieces() : position.GetBlackPieces();
 
-        for (int square = 0; square < 64; square++)
-        {
-            if (this[square])
-            {
-                Bitboard attacks = MaskKingAttacks(square);
-                Bitboard validMoves = attacks & ~friendlyPieces;
+        int square = LSB(); // Get the square of the king
+        Bitboard attacks = MaskKingAttacks(square);
+        Bitboard validMoves = attacks & ~friendlyPieces;
 
-                // Add normal moves and captures
-                while (validMoves != 0)
-                {
-                    moves.Add(new Move(square, validMoves.LSB(), position));
-                    validMoves &= validMoves - 1;
-                }
-            }
+        // Add normal moves and captures
+        while (validMoves != 0)
+        {
+            moves.Add(new Move(square, validMoves.LSB(), position));
+            validMoves &= validMoves - 1;
         }
+        
+        // Add castling moves
+        if (IsWhite && position.WhiteToMove)
+        {
+            if (position.castlingRights[1] && position.GetEmptySquares()[61] && position.GetEmptySquares()[62])
+                moves.Add(new Move(square, square + 2, position, isCastling: true, castlingRookFrom: 63, castlingRookTo: 61));
+            if (position.castlingRights[0] && position.GetEmptySquares()[59] && position.GetEmptySquares()[58] && position.GetEmptySquares()[57])
+                moves.Add(new Move(square, square - 2, position, isCastling: true, castlingRookFrom: 56, castlingRookTo: 59));
+        }
+        else if (!IsWhite && !position.WhiteToMove)
+        {
+            if (position.castlingRights[3] && position.GetEmptySquares()[5] && position.GetEmptySquares()[6])
+                moves.Add(new Move(square, square + 2, position, isCastling: true, castlingRookFrom: 7, castlingRookTo: 5));
+            if (position.castlingRights[2] && position.GetEmptySquares()[3] && position.GetEmptySquares()[2] && position.GetEmptySquares()[1])
+                moves.Add(new Move(square, square - 2, position, isCastling: true, castlingRookFrom: 0, castlingRookTo: 3));
+        }
+
+
+
 
         return moves; // Return the list of moves generated
     }
-    
+
     public override char GetSymbol()
     {
         return IsWhite ? 'k' : 'K';
