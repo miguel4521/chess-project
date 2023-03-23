@@ -48,6 +48,21 @@
                 if (ourPawns[square])
                 {
                     Bitboard attacks = MaskPawnAttacks(square) & enemyPieces;
+                    
+                    if (position.EnPassantTarget.HasValue)
+                    {
+                        Bitboard enPassantTarget = 0UL;
+                        enPassantTarget[position.EnPassantTarget.Value] = true;
+                        Bitboard enPassantAttacks = MaskPawnAttacks(square) & enPassantTarget;
+
+                        while (enPassantAttacks != 0)
+                        {
+                            int targetSquare = enPassantAttacks.LSB();
+                            int capturedSquare = position.GetEnPassantCaptureSquare().Value;
+                            moves.Add(new Move(square, targetSquare, position, true, capturedSquare));
+                            enPassantAttacks &= enPassantAttacks - 1;
+                        }
+                    }
 
                     while (attacks != 0)
                     {

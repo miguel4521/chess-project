@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using chess_project.Bitboards;
 using chess_project.Bitboards.Pieces;
 
@@ -11,7 +12,9 @@ public class Position
     // An array of bitboards, one for each piece type and color
     public readonly Piece[] Pieces;
     private bool WhiteToMove = true;
-    
+
+    public int? EnPassantTarget { get; set; }
+
     private readonly Dictionary<char, int> pieceIndexFromChar = new()
     {
         { 'p', 0 },
@@ -53,9 +56,27 @@ public class Position
         Pieces[move.PieceIndex][move.To] = true;
         Pieces[move.PieceIndex][move.From] = false;
 
-        // If the move is a capture, remove the captured piece
-        if (move.CapturedPieceIndex != -1)
-            Pieces[move.CapturedPieceIndex][move.To] = false;
+        if (move.IsEnPassant)
+        {
+            Pieces[move.CapturedPieceIndex][move.CapturedSquare.Value] = false;
+            // Set the en passant target square to null after the move
+            EnPassantTarget = null;
+        }
+        else
+        {
+            // If the move is a capture, remove the captured piece
+            if (move.CapturedPieceIndex != -1)
+                Pieces[move.CapturedPieceIndex][move.To] = false;
+            // Update the en passant target square if it's a double pawn push
+            if (Math.Abs(move.To - move.From) == 16 && Pieces[move.PieceIndex] is Pawn)
+            {
+                int offset = WhiteToMove ? -8 : 8;
+                EnPassantTarget = move.From + offset;
+            }
+            else
+                // Set the en passant target square to null for other moves
+                EnPassantTarget = null;
+        }
 
         // Switch sides to move
         WhiteToMove = !WhiteToMove;
@@ -72,6 +93,15 @@ public class Position
         }
 
         return moves;
+    }
+
+    public int? GetEnPassantCaptureSquare()
+    {
+        if (!EnPassantTarget.HasValue)
+            return null;
+
+        int offset = WhiteToMove ? 8 : -8;
+        return EnPassantTarget.Value + offset;
     }
 
     public int GetPieceIndexAt(int square)
