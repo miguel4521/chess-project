@@ -53,20 +53,25 @@ function Chessboard({makeMove, legalMoves}) {
 
     // Handle the movement of a piece to a new position.
     const handlePieceMove = (piece, newPosition) => {
-        console.log(legalMoves);
-        console.log((piece.position.y * 8 + piece.position.x) + " " + (newPosition.y * 8 + newPosition.x));
-        const isMoveLegal = legalMoves.some((move) => {
+        // loop through each legal move and return the move that matches the piece and the new position.
+        const move = legalMoves.find((move) => {
             return move.from === piece.position.y * 8 + piece.position.x && move.to === newPosition.y * 8 + newPosition.x;
         });
 
-        if (!isMoveLegal) return;
+        if (!move) return;
+        
 
         // Notify the parent component (NewGame) about the move.
-        makeMove({start: piece.position, end: newPosition});
+        makeMove(move);
+        
+        console.log(move);
 
         // Remove the captured piece, if any.
         const removeCapturedPiece = pieces.filter((p) => {
-            return JSON.stringify(p.position) !== JSON.stringify(newPosition);
+            // If this is an en passant move, remove the captured pawn
+            if (move.isEnPassant)
+                return (p.position.y * 8 + p.position.x) !== move.enPassantSquare;
+            return (p.position.y * 8 + p.position.x) !== move.to;
         });
 
         // Update the positions of the pieces.

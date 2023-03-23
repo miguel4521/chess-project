@@ -5,10 +5,11 @@ const NewGame = () => {
     const [gameId, setGameId] = useState();
     const [legalMoves, setLegalMoves] = useState([]);
     const makeMove = (move) => {
-        fetch(`makemove?guid=${gameId}&from=${move.start.x + move.start.y * 8}&to=${move.end.x + move.end.y * 8}`)
+        fetch(`makemove?guid=${gameId}&from=${move.from}&to=${move.to}`)
             .then(getLegalMoves);
+
     };
-    
+
     const getLegalMoves = () => {
         fetch(`getlegalmoves?guid=${gameId}`)
             .then(response => response.json())
@@ -26,7 +27,7 @@ const NewGame = () => {
             getLegalMoves();
         }
     }, [gameId]);
-    
+
     return (
         <div>
             <Chessboard makeMove={makeMove} legalMoves={legalMoves}/>
