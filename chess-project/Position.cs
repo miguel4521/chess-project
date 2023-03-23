@@ -116,8 +116,9 @@ public class Position
             // Move the rook involved in castling
             int rookFrom = move.CastlingRookFrom.Value;
             int rookTo = move.CastlingRookTo.Value;
-            Pieces[6][rookFrom] = false;
-            Pieces[6][rookTo] = true;
+            int rookIndex = move.PieceIndex == 10 ? 6 : 7;
+            Pieces[rookIndex][rookFrom] = false;
+            Pieces[rookIndex][rookTo] = true;
         }
         else
         {
