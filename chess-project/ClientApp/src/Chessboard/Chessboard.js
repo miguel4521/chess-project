@@ -64,11 +64,13 @@ function Chessboard({makeMove, legalMoves}) {
         // Notify the parent component (NewGame) about the move.
         makeMove(move);
         
+        console.log(move)
+        
         // Remove the captured piece, if any.
         const removeCapturedPiece = pieces.filter((p) => {
             // If this is an en passant move, remove the captured pawn
             if (move.isEnPassant)
-                return (p.position.y * 8 + p.position.x) !== move.enPassantSquare;
+                return (p.position.y * 8 + p.position.x) !== move.capturedSquare;
             return (p.position.y * 8 + p.position.x) !== move.to;
         });
 
