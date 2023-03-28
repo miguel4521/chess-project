@@ -46,7 +46,7 @@ public class King : Piece
         Bitboard friendlyPieces = IsWhite ? position.GetWhitePieces() : position.GetBlackPieces();
 
         int square = LSB(); // Get the square of the king
-        
+
         Bitboard attacks = MaskKingAttacks(square);
         Bitboard validMoves = attacks & ~friendlyPieces;
 
@@ -60,26 +60,29 @@ public class King : Piece
         // Add castling moves
         if (IsWhite && position.WhiteToMove)
         {
-            if (position.castlingRights[1] && position.GetEmptySquares()[5] && position.GetEmptySquares()[6])
+            if (position.castlingRights[1] && position.GetEmptySquares()[5] && position.GetEmptySquares()[6] &&
+                !position.attackedSquares[5] && !position.attackedSquares[6] && !position.InCheck())
                 moves.Add(new Move(square, square + 2, position, isCastling: true, castlingRookFrom: 7,
                     castlingRookTo: 5));
             if (position.castlingRights[0] && position.GetEmptySquares()[1] && position.GetEmptySquares()[2] &&
-                position.GetEmptySquares()[3])
+                position.GetEmptySquares()[3] && !position.attackedSquares[1] && !position.attackedSquares[2] &&
+                !position.InCheck())
                 moves.Add(new Move(square, square - 2, position, isCastling: true, castlingRookFrom: 0,
                     castlingRookTo: 3));
         }
         else if (!IsWhite && !position.WhiteToMove)
         {
-            if (position.castlingRights[3] && position.GetEmptySquares()[61] && position.GetEmptySquares()[62])
+            if (position.castlingRights[3] && position.GetEmptySquares()[61] && position.GetEmptySquares()[62] &&
+                !position.attackedSquares[61] == false && !position.attackedSquares[62] && !position.InCheck())
                 moves.Add(new Move(square, square + 2, position, isCastling: true, castlingRookFrom: 63,
                     castlingRookTo: 61));
             if (position.castlingRights[2] && position.GetEmptySquares()[59] && position.GetEmptySquares()[58] &&
-                position.GetEmptySquares()[57])
+                position.GetEmptySquares()[57] && !position.attackedSquares[59] && !position.attackedSquares[58] &&
+                !position.InCheck())
                 moves.Add(new Move(square, square - 2, position, isCastling: true, castlingRookFrom: 56,
                     castlingRookTo: 59));
         }
-
-
+        
         return moves; // Return the list of moves generated
     }
 
