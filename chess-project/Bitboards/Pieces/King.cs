@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 
 namespace chess_project.Bitboards.Pieces;
 
@@ -33,6 +34,11 @@ public class King : Piece
         return attacks;
     }
 
+    public override Bitboard GetAttackMap(Position position)
+    {
+        return MaskKingAttacks(LSB());
+    }
+
     public override List<Move> GenerateMoves(Position position)
     {
         List<Move> moves = new List<Move>(); // A list to store the generated moves
@@ -40,6 +46,7 @@ public class King : Piece
         Bitboard friendlyPieces = IsWhite ? position.GetWhitePieces() : position.GetBlackPieces();
 
         int square = LSB(); // Get the square of the king
+        
         Bitboard attacks = MaskKingAttacks(square);
         Bitboard validMoves = attacks & ~friendlyPieces;
 
@@ -49,24 +56,28 @@ public class King : Piece
             moves.Add(new Move(square, validMoves.LSB(), position));
             validMoves &= validMoves - 1;
         }
-        
+
         // Add castling moves
         if (IsWhite && position.WhiteToMove)
         {
-            if (position.castlingRights[1] && position.GetEmptySquares()[61] && position.GetEmptySquares()[62])
-                moves.Add(new Move(square, square + 2, position, isCastling: true, castlingRookFrom: 63, castlingRookTo: 61));
-            if (position.castlingRights[0] && position.GetEmptySquares()[59] && position.GetEmptySquares()[58] && position.GetEmptySquares()[57])
-                moves.Add(new Move(square, square - 2, position, isCastling: true, castlingRookFrom: 56, castlingRookTo: 59));
+            if (position.castlingRights[1] && position.GetEmptySquares()[5] && position.GetEmptySquares()[6])
+                moves.Add(new Move(square, square + 2, position, isCastling: true, castlingRookFrom: 7,
+                    castlingRookTo: 5));
+            if (position.castlingRights[0] && position.GetEmptySquares()[1] && position.GetEmptySquares()[2] &&
+                position.GetEmptySquares()[3])
+                moves.Add(new Move(square, square - 2, position, isCastling: true, castlingRookFrom: 0,
+                    castlingRookTo: 3));
         }
         else if (!IsWhite && !position.WhiteToMove)
         {
-            if (position.castlingRights[3] && position.GetEmptySquares()[5] && position.GetEmptySquares()[6])
-                moves.Add(new Move(square, square + 2, position, isCastling: true, castlingRookFrom: 7, castlingRookTo: 5));
-            if (position.castlingRights[2] && position.GetEmptySquares()[3] && position.GetEmptySquares()[2] && position.GetEmptySquares()[1])
-                moves.Add(new Move(square, square - 2, position, isCastling: true, castlingRookFrom: 0, castlingRookTo: 3));
+            if (position.castlingRights[3] && position.GetEmptySquares()[61] && position.GetEmptySquares()[62])
+                moves.Add(new Move(square, square + 2, position, isCastling: true, castlingRookFrom: 63,
+                    castlingRookTo: 61));
+            if (position.castlingRights[2] && position.GetEmptySquares()[59] && position.GetEmptySquares()[58] &&
+                position.GetEmptySquares()[57])
+                moves.Add(new Move(square, square - 2, position, isCastling: true, castlingRookFrom: 56,
+                    castlingRookTo: 59));
         }
-
-
 
 
         return moves; // Return the list of moves generated
@@ -74,6 +85,6 @@ public class King : Piece
 
     public override char GetSymbol()
     {
-        return IsWhite ? 'k' : 'K';
+        return IsWhite ? 'K' : 'k';
     }
 }

@@ -20,7 +20,7 @@ public class GetLegalMovesController : ControllerBase
         // get the user's position class
         Position position = Position.Positions[guid];
         // get the legal moves
-        var moves = position.GenerateMoves();
+        List<Move> moves = position.GenerateMoves();
         return moves;
     }
 }

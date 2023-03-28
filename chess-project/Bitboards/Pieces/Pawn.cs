@@ -1,4 +1,6 @@
-﻿namespace chess_project.Bitboards.Pieces
+﻿using System.Diagnostics;
+
+namespace chess_project.Bitboards.Pieces
 {
     public class Pawn : Piece
     {
@@ -15,25 +17,39 @@
             // piece bitboard
             Bitboard bitboard = 0UL;
 
+            // set piece on board
             bitboard[square] = true;
 
             // white pawns
             if (!IsWhite)
             {
                 // generate pawn attacks
-                if (((bitboard >> 7) & NotAFile) != 0) attacks |= bitboard << 7;
-                if (((bitboard >> 9) & NotHFile) != 0) attacks |= bitboard << 9;
+                if (((bitboard >> 7) & NotAFile) != 0) attacks |= bitboard >> 7;
+                if (((bitboard >> 9) & NotHFile) != 0) attacks |= bitboard >> 9;
             }
             // black pawns
             else
             {
                 // generate pawn attacks
-                if (((bitboard << 7) & NotHFile) != 0) attacks |= bitboard >> 7;
-                if (((bitboard << 9) & NotAFile) != 0) attacks |= bitboard >> 9;
+                if (((bitboard << 7) & NotHFile) != 0) attacks |= bitboard << 7;
+                if (((bitboard << 9) & NotAFile) != 0) attacks |= bitboard << 9;
             }
 
             // return attack map
             return attacks;
+        }
+
+        public override Bitboard GetAttackMap(Position position)
+        {
+            Bitboard attackMap = new Bitboard();
+
+            for (int square = 0; square < 64; square++)
+            {
+                if (this[square])
+                    attackMap |= MaskPawnAttacks(square);
+            }
+
+            return attackMap;
         }
 
         public override List<Move> GenerateMoves(Position position)
@@ -48,7 +64,7 @@
                 if (ourPawns[square])
                 {
                     Bitboard attacks = MaskPawnAttacks(square) & enemyPieces;
-                    
+
                     if (position.EnPassantTarget.HasValue)
                     {
                         Bitboard enPassantTarget = 0UL;
@@ -71,14 +87,14 @@
                         attacks &= attacks - 1;
                     }
 
-                    int singlePush = IsWhite ? square - 8 : square + 8;
-                    int doublePush = IsWhite ? square - 16 : square + 16;
+                    int singlePush = IsWhite ? square + 8 : square - 8;
+                    int doublePush = IsWhite ? square + 16 : square - 16;
 
                     if (!position.GetOccupiedSquares()[singlePush])
                     {
                         moves.Add(new Move(square, singlePush, position));
 
-                        if ((!IsWhite && square is >= 8 and <= 15) || (IsWhite && square is >= 48 and <= 55))
+                        if ((IsWhite && square is >= 8 and <= 15) || (!IsWhite && square is >= 48 and <= 55))
                         {
                             if (!position.GetOccupiedSquares()[doublePush])
                                 moves.Add(new Move(square, doublePush, position));
@@ -92,7 +108,7 @@
 
         public override char GetSymbol()
         {
-            return IsWhite ? 'p' : 'P';
+            return IsWhite ? 'P' : 'p';
         }
     }
 }

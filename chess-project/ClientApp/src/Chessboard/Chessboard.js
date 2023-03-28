@@ -50,28 +50,29 @@ function Chessboard({makeMove, legalMoves}) {
         position: {x: 7, y: 6}
     },]);
 
+    const posToSquare = (pos) => {
+        return (7 - pos.y) * 8 + pos.x;
+    }
+
 
     // Handle the movement of a piece to a new position.
     const handlePieceMove = (piece, newPosition) => {
         // loop through each legal move and return the move that matches the piece and the new position.
         const move = legalMoves.find((move) => {
-            return move.from === piece.position.y * 8 + piece.position.x && move.to === newPosition.y * 8 + newPosition.x;
+            return move.from === posToSquare(piece.position) && move.to === posToSquare(newPosition);
         });
 
         if (!move) return;
-        
 
         // Notify the parent component (NewGame) about the move.
         makeMove(move);
-        
-        console.log(move)
-        
+
         // Remove the captured piece, if any.
         const removeCapturedPiece = pieces.filter((p) => {
             // If this is an en passant move, remove the captured pawn
             if (move.isEnPassant)
-                return (p.position.y * 8 + p.position.x) !== move.capturedSquare;
-            return (p.position.y * 8 + p.position.x) !== move.to;
+                return (posToSquare(p.position)) !== move.capturedSquare;
+            return (posToSquare(p.position)) !== move.to;
         });
 
         // Update the positions of the pieces.
@@ -83,10 +84,10 @@ function Chessboard({makeMove, legalMoves}) {
                 // Check if the current piece is a rook and has the same color as the king
                 if (p.type === 'r' && p.color === piece.color) {
                     // If the rook's current position matches the castlingRookFrom square, update its position to the castlingRookTo square
-                    if (p.position.y * 8 + p.position.x === move.castlingRookFrom) {
+                    if (posToSquare(p.position) === move.castlingRookFrom) {
                         const updatedRookPosition = {
                             x: move.castlingRookTo % 8,
-                            y: Math.floor(move.castlingRookTo / 8),
+                            y: 7 - Math.floor(move.castlingRookTo / 8),
                         };
                         return {...p, position: updatedRookPosition};
                     }

@@ -6,5 +6,7 @@ public abstract class Piece : Bitboard
     
     public abstract List<Move> GenerateMoves(Position position);
     
+    public abstract Bitboard GetAttackMap(Position position);
+    
     public abstract char GetSymbol();
 }

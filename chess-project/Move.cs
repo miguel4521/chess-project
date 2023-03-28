@@ -1,4 +1,7 @@
-﻿namespace chess_project;
+﻿using System.Diagnostics;
+using chess_project.Bitboards;
+
+namespace chess_project;
 
 public struct Move
 {
@@ -11,6 +14,9 @@ public struct Move
     public bool IsCastling { get; }
     public int? CastlingRookFrom { get; }
     public int? CastlingRookTo { get; }
+    public bool[] CastlingRightsBeforeMove { get; set; }
+    public int? EnPassantTargetBeforeMove { get; set; }
+    public Bitboard AttackedSquares { get; }
 
     public Move(int from, int to, Position position, bool isEnPassant = false, int? capturedSquare = null,
         bool isCastling = false, int? castlingRookFrom = null, int? castlingRookTo = null)
@@ -25,6 +31,12 @@ public struct Move
         IsCastling = isCastling;
         CastlingRookFrom = castlingRookFrom;
         CastlingRookTo = castlingRookTo;
+        
+        // Apply the move to the position and store the previous castling rights and en passant target square
+        CastlingRightsBeforeMove = position.castlingRights.ToArray();
+        EnPassantTargetBeforeMove = position.EnPassantTarget;
+
+        AttackedSquares = position.attackedSquares;
     }
 
     public override string ToString()

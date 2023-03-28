@@ -1,10 +1,25 @@
-﻿namespace chess_project.Bitboards.Pieces;
+﻿using System.Diagnostics;
+
+namespace chess_project.Bitboards.Pieces;
 
 public class Knight : Piece
 {
     public Knight(bool isWhite)
     {
         IsWhite = isWhite;
+    }
+
+    public override Bitboard GetAttackMap(Position position)
+    {
+        Bitboard attackMap = new Bitboard();
+
+        for (int square = 0; square < 64; square++)
+        {
+            if (this[square])
+                attackMap |= MaskKnightAttacks(square);
+        }
+
+        return attackMap;
     }
 
     // generate knight attacks
@@ -36,14 +51,14 @@ public class Knight : Piece
         List<Move> moves = new List<Move>(); // A list to store the generated moves
 
         Bitboard friendlyPieces = IsWhite ? position.GetWhitePieces() : position.GetBlackPieces();
-
+        
         for (int square = 0; square < 64; square++)
         {
             if (this[square])
             {
                 Bitboard attacks = MaskKnightAttacks(square);
                 Bitboard validMoves = attacks & ~friendlyPieces;
-
+                
                 // Add normal moves and captures
                 while (validMoves != 0)
                 {
@@ -58,6 +73,6 @@ public class Knight : Piece
     
     public override char GetSymbol()
     {
-        return IsWhite ? 'n' : 'N';
+        return IsWhite ? 'N' : 'n';
     }
 }

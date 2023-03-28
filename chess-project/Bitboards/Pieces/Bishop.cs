@@ -7,17 +7,30 @@ public class Bishop : SlidingPiece
         IsWhite = isWhite;
     }
 
+    public override Bitboard GetAttackMap(Position position)
+    {
+        Bitboard attackMap = new Bitboard();
+
+        for (int square = 0; square < 64; square++)
+        {
+            if (this[square])
+                attackMap |= GetBishopAttacks(square, position.GetOccupiedSquares());
+        }
+
+        return attackMap;
+    }
+
     public override List<Move> GenerateMoves(Position position)
     {
         List<Move> moves = new List<Move>();
-        
+
         Bitboard friendlyPieces = IsWhite ? position.GetWhitePieces() : position.GetBlackPieces();
 
         for (int square = 0; square < 64; square++)
         {
             if (this[square])
             {
-                Bitboard attacks = GetBishopAttacks(square, position.GetOccupiedSquares()); 
+                Bitboard attacks = GetBishopAttacks(square, position.GetOccupiedSquares());
                 Bitboard validMoves = attacks & ~friendlyPieces;
 
                 // Add normal moves and captures
@@ -34,6 +47,6 @@ public class Bishop : SlidingPiece
 
     public override char GetSymbol()
     {
-        return IsWhite ? 'b' : 'B';
+        return IsWhite ? 'B' : 'b';
     }
 }

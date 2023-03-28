@@ -1,10 +1,30 @@
-﻿namespace chess_project.Bitboards.Pieces;
+﻿using System.Diagnostics;
+
+namespace chess_project.Bitboards.Pieces;
 
 public class Queen : SlidingPiece
 {
     public Queen(bool isWhite)
     {
         IsWhite = isWhite;
+    }
+
+    public override Bitboard GetAttackMap(Position position)
+    {
+        Bitboard attackMap = new Bitboard();
+        
+        for (int square = 0; square < 64; square++)
+        {
+            if (this[square])
+            {
+                Bitboard bishopAttacks = GetBishopAttacks(square, position.GetOccupiedSquares());
+                Bitboard rookAttacks = GetRookAttacks(square, position.GetOccupiedSquares());
+                Bitboard attacks = bishopAttacks | rookAttacks;
+                attackMap |= attacks;
+            }
+        }
+
+        return attackMap;
     }
 
     public override List<Move> GenerateMoves(Position position)
@@ -36,6 +56,6 @@ public class Queen : SlidingPiece
     
     public override char GetSymbol()
     {
-        return IsWhite ? 'q' : 'Q';
+        return IsWhite ? 'Q' : 'q';
     }
 }

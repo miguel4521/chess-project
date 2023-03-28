@@ -13,6 +13,8 @@ public class Position
     public readonly Piece[] Pieces;
     public bool WhiteToMove = true;
 
+    public Bitboard attackedSquares = new();
+
     // left white rook, right white, left black, right black
     public bool[] castlingRights = { true, true, true, true };
 
@@ -20,18 +22,18 @@ public class Position
 
     private readonly Dictionary<char, int> pieceIndexFromChar = new()
     {
-        { 'p', 0 },
-        { 'P', 1 },
-        { 'n', 2 },
-        { 'N', 3 },
-        { 'b', 4 },
-        { 'B', 5 },
-        { 'r', 6 },
-        { 'R', 7 },
-        { 'q', 8 },
-        { 'Q', 9 },
-        { 'k', 10 },
-        { 'K', 11 }
+        { 'P', 0 },
+        { 'p', 1 },
+        { 'N', 2 },
+        { 'n', 3 },
+        { 'B', 4 },
+        { 'b', 5 },
+        { 'R', 6 },
+        { 'r', 7 },
+        { 'Q', 8 },
+        { 'q', 9 },
+        { 'K', 10 },
+        { 'k', 11 }
     };
 
     // The constructor that initializes the bitboards to the initial position
@@ -58,8 +60,8 @@ public class Position
         // Move the piece
         Pieces[move.PieceIndex][move.To] = true;
         Pieces[move.PieceIndex][move.From] = false;
-        
-        updateCastlingRights(move);
+
+        UpdateCastlingRights(move);
 
         if (move.IsEnPassant)
         {
@@ -75,7 +77,7 @@ public class Position
             // Update the en passant target square if it's a double pawn push
             if (Math.Abs(move.To - move.From) == 16 && Pieces[move.PieceIndex] is Pawn)
             {
-                int offset = WhiteToMove ? -8 : 8;
+                int offset = WhiteToMove ? 8 : -8;
                 EnPassantTarget = move.From + offset;
             }
             else
@@ -85,19 +87,95 @@ public class Position
 
         // Switch sides to move
         WhiteToMove = !WhiteToMove;
+
+        SetAttackedSquares();
     }
 
     public List<Move> GenerateMoves()
     {
         List<Move> moves = new List<Move>();
-        // Generate moves for all pieces, depending on the side to move
+        List<Move> legalMoves = new List<Move>();
+
+        for (int i = WhiteToMove ? 0 : 1; i < 12 && Pieces[i] != 0; i += 2)
+            moves.AddRange(Pieces[i].GenerateMoves(this));
+
+        // Check each move for legality
+        foreach (Move move in moves)
+        {
+            MakeMove(move);
+            WhiteToMove = !WhiteToMove;
+            if (!InCheck())
+                legalMoves.Add(move);
+
+            WhiteToMove = !WhiteToMove;
+            UndoMove(move);
+        }
+
+        return legalMoves;
+    }
+
+    private bool InCheck()
+    {
+        int kingIndex = WhiteToMove ? 10 : 11;
+        int kingSquare = Pieces[kingIndex].LSB();
+        return attackedSquares[kingSquare];
+    }
+
+    private void UndoMove(Move move)
+    {
+        // Switch sides to move
+        WhiteToMove = !WhiteToMove;
+
+        // Undo the move
+        Pieces[move.PieceIndex][move.From] = true;
+        Pieces[move.PieceIndex][move.To] = false;
+
+        if (move.CapturedPieceIndex != -1)
+            Pieces[move.CapturedPieceIndex][move.To] = true;
+
+        if (move.IsCastling)
+        {
+            // Move the rook back
+            int rookFrom = move.CastlingRookFrom.Value;
+            int rookTo = move.CastlingRookTo.Value;
+            int rookIndex = move.PieceIndex == 10 ? 6 : 7;
+            Pieces[rookIndex][rookFrom] = true;
+            Pieces[rookIndex][rookTo] = false;
+        }
+        else if (move.IsEnPassant)
+        {
+            int capturedSquare = move.CapturedSquare.Value;
+            int offset = WhiteToMove ? 8 : -8;
+            int pawnSquare = capturedSquare + offset;
+            Pieces[move.CapturedPieceIndex][capturedSquare] = true;
+            Pieces[move.PieceIndex][pawnSquare] = true;
+        }
+
+        // Update en passant target square
+        EnPassantTarget = move.EnPassantTargetBeforeMove;
+
+        // Update castling rights
+        castlingRights = move.CastlingRightsBeforeMove;
+
+        // Unset the attacked squares bitboard
+        attackedSquares = move.AttackedSquares;
+    }
+
+
+    public void SetAttackedSquares()
+    {
+        attackedSquares = 0;
+
         for (int i = WhiteToMove ? 0 : 1; i < 12; i += 2)
         {
             if (Pieces[i] != 0)
-                moves.AddRange(Pieces[i].GenerateMoves(this));
-        }
+            {
+                Bitboard attackMap = Pieces[i].GetAttackMap(this);
 
-        return moves;
+                // OR the attack map with the attacked squares bitboard
+                attackedSquares |= attackMap;
+            }
+        }
     }
 
     public int? GetEnPassantCaptureSquare()
@@ -105,11 +183,11 @@ public class Position
         if (!EnPassantTarget.HasValue)
             return null;
 
-        int offset = WhiteToMove ? 8 : -8;
+        int offset = WhiteToMove ? -8 : 8;
         return EnPassantTarget.Value + offset;
     }
 
-    private void updateCastlingRights(Move move)
+    private void UpdateCastlingRights(Move move)
     {
         if (move.IsCastling)
         {
@@ -274,7 +352,7 @@ public class Position
             else
             {
                 int pieceIndex = pieceIndexFromChar[c];
-                bool isWhite = !char.IsUpper(c);
+                bool isWhite = char.IsUpper(c);
 
                 Pieces[pieceIndex][rank * 8 + file] = true;
                 Pieces[pieceIndex].IsWhite = isWhite;
