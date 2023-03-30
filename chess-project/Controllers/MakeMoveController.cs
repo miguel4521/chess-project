@@ -15,7 +15,7 @@ public class MakeMoveController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult Get([FromQuery]string guid, [FromQuery]int from, [FromQuery]int to)
+    public IActionResult Get([FromQuery] string guid, [FromQuery] int from, [FromQuery] int to)
     {
         // get the user's position class
         Position position = Position.Positions[guid];
@@ -23,6 +23,6 @@ public class MakeMoveController : ControllerBase
         Move move = position.GenerateMoves().Find(m => m.From == from && m.To == to);
         // make the move
         position.MakeMove(move);
-        return Ok(new { message = "data processed successfully" });
+        return Ok();
     }
 }

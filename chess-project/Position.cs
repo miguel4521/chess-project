@@ -13,6 +13,8 @@ public class Position
     public readonly Piece[] Pieces;
     public bool WhiteToMove = true;
 
+    public const int MaxSearchDepth = 4;
+
     public Bitboard attackedSquares = new();
 
     // left white rook, right white, left black, right black
@@ -114,14 +116,14 @@ public class Position
         return legalMoves;
     }
 
-    private bool InCheck()
+    public bool InCheck()
     {
         int kingIndex = WhiteToMove ? 10 : 11;
         int kingSquare = Pieces[kingIndex].LSB();
         return attackedSquares[kingSquare];
     }
 
-    private void UndoMove(Move move)
+    public void UndoMove(Move move)
     {
         // Switch sides to move
         WhiteToMove = !WhiteToMove;
@@ -236,6 +238,80 @@ public class Position
             }
         }
     }
+
+    public Move GetBestMove()
+    {
+        Move bestMove = default;
+        int bestScore = int.MinValue;
+        int alpha = int.MinValue;
+        int beta = int.MaxValue;
+        int depth = MaxSearchDepth;
+
+        List<Move> legalMoves = GenerateMoves();
+
+        foreach (Move move in legalMoves)
+        {
+            MakeMove(move);
+            int score = -Negamax(depth - 1, -beta, -alpha);
+            UndoMove(move);
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestMove = move;
+            }
+
+            alpha = Math.Max(alpha, score);
+            if (beta <= alpha)
+                break;
+        }
+
+        return bestMove;
+    }
+
+    private int Negamax(int depth, int alpha, int beta)
+    {
+        if (depth == 0 || GenerateMoves().Count == 0)
+        {
+            // For simplicity, we'll use the material balance as the evaluation function.
+            return EvaluatePosition();
+        }
+
+        int bestScore = int.MinValue;
+
+        List<Move> legalMoves = GenerateMoves();
+        foreach (Move move in legalMoves)
+        {
+            MakeMove(move);
+            int score = -Negamax(depth - 1, -beta, -alpha);
+            UndoMove(move);
+
+            bestScore = Math.Max(bestScore, score);
+            alpha = Math.Max(alpha, score);
+
+            if (beta <= alpha)
+            {
+                break;
+            }
+        }
+
+        return bestScore;
+    }
+
+    public int EvaluatePosition()
+    {
+        int score = 0;
+
+        for (int i = 0; i < Pieces.Length; i++)
+        {
+            int pieceCount = Pieces[i].Count();
+            int pieceValue = Pieces[i].Value;
+            score += (i % 2 == 0 ? 1 : -1) * pieceCount * pieceValue;
+        }
+
+        return WhiteToMove ? score : -score;
+    }
+
 
     public int GetPieceIndexAt(int square)
     {

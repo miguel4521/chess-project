@@ -8,6 +8,8 @@ public class Rook : SlidingPiece
     {
         IsWhite = isWhite;
     }
+    
+    public override int Value { get; } = 500;
 
     public override Bitboard GetAttackMap(Position position)
     {

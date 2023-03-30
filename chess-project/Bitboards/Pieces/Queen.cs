@@ -8,6 +8,8 @@ public class Queen : SlidingPiece
     {
         IsWhite = isWhite;
     }
+    
+    public override int Value { get; } = 900;
 
     public override Bitboard GetAttackMap(Position position)
     {

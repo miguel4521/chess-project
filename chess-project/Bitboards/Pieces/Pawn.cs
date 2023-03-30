@@ -8,6 +8,8 @@ namespace chess_project.Bitboards.Pieces
         {
             IsWhite = isWhite;
         }
+        
+        public override int Value { get; } = 100;
 
         private Bitboard MaskPawnAttacks(int square)
         {

@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Diagnostics;
-
-namespace chess_project.Bitboards.Pieces;
+﻿namespace chess_project.Bitboards.Pieces;
 
 public class King : Piece
 {
@@ -9,6 +6,8 @@ public class King : Piece
     {
         IsWhite = isWhite;
     }
+    
+    public override int Value { get; } = 0;
 
     // generate king attacks
     private Bitboard MaskKingAttacks(int square)

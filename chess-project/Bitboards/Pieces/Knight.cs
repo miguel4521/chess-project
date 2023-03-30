@@ -8,6 +8,8 @@ public class Knight : Piece
     {
         IsWhite = isWhite;
     }
+    
+    public override int Value { get; } = 320;
 
     public override Bitboard GetAttackMap(Position position)
     {

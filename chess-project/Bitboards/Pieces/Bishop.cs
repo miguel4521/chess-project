@@ -6,6 +6,8 @@ public class Bishop : SlidingPiece
     {
         IsWhite = isWhite;
     }
+    
+    public override int Value { get; } = 330;
 
     public override Bitboard GetAttackMap(Position position)
     {

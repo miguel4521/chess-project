@@ -8,5 +8,7 @@ public abstract class Piece : Bitboard
     
     public abstract Bitboard GetAttackMap(Position position);
     
+    public abstract int Value { get; }
+    
     public abstract char GetSymbol();
 }

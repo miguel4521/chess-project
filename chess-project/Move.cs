@@ -39,6 +39,11 @@ public struct Move
         AttackedSquares = position.attackedSquares;
     }
 
+    public bool IsCaptureMove()
+    {
+        return CapturedPieceIndex != -1;
+    }
+
     public override string ToString()
     {
         return From + " " + To;
