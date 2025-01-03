@@ -44,6 +44,51 @@ Please note:
 
 The application will be available at `https://localhost:44363`
 
+## 📝 Technical Implementation
+
+The chess engine is built using modern bitboard techniques for efficient board representation and move generation. Here's a detailed overview of the implementation:
+
+### Bitboard Architecture
+- Uses 64-bit integers (`ulong`) to represent the chess board
+- Each bit represents a square on the board
+- Implements core bitwise operations (AND, OR, XOR, NOT)
+- Efficient bit manipulation for piece movement and position analysis
+
+### Piece Representation
+- Maintains 12 separate bitboards:
+  - 6 for white pieces (pawn, knight, bishop, rook, queen, king)
+  - 6 for black pieces (pawn, knight, bishop, rook, queen, king)
+- Each piece type implements its own move generation logic
+- Special handling for unique piece movements and rules
+
+### Advanced Move Generation
+- **Magic Bitboards**: Optimized move generation for sliding pieces
+  - Pre-computed attack tables
+  - Perfect hashing through magic number multiplication
+  - Separate tables for bishops and rooks
+  - Optimized bit count for each square
+- **Specialized Piece Logic**:
+  - Pawns: Handles en passant and promotions
+  - Knights: Uses pre-calculated attack patterns
+  - Sliding pieces: Utilizes magic bitboard lookup
+  - King: Includes castling logic
+
+### Performance Optimizations
+- O(1) sliding piece move generation
+- Pre-computed attack tables
+- Efficient bit manipulation operations
+- File masks to prevent wrap-around moves
+- Attack map caching for legal move validation
+
+### Board Analysis
+- Maintains attack maps for all pieces
+- Efficient check detection
+- Legal move filtering
+- Position evaluation support
+- Piece mobility calculation
+
+This implementation follows best practices from modern chess engines, prioritizing performance while maintaining clean, object-oriented design principles.
+
 ## 📝 License
 
 [MIT License](LICENSE) 
