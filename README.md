@@ -1,10 +1,12 @@
 # Chess Project
 
-A web-based chess application built with .NET 9.0 and React. This project is currently under development.
+A web-based chess application built with .NET 9.0 and React. This project is abandoned.
+
+<img width="951" alt="image" src="https://github.com/user-attachments/assets/854d4d69-4a10-4c1d-89d2-cf2e54b12ec1" />
 
 ## ⚠️ Development Status
 
-This project is a work in progress. Please note:
+Please note:
 - Move generation and validation may not be 100% accurate
 - AI/computer opponent features are still being refined
 - Some chess rules might not be fully implemented
